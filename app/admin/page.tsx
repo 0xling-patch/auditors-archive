@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET || "Nashsung0212";
+const ADMIN_SECRET = "Nashsung0212";
 
 interface FormData {
   title: string;
@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [authError, setAuthError] = useState(false);
+  const [mode, setMode] = useState<"create" | "delete">("create");
 
   const [form, setForm] = useState<FormData>({
     title: "",
@@ -35,6 +36,7 @@ export default function AdminPage() {
     content: "",
   });
 
+  const [deleteSlug, setDeleteSlug] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<{
     success: boolean;
@@ -51,48 +53,32 @@ export default function AdminPage() {
     }
   }
 
-  function generateSlug(): string {
-    const date = form.date.slice(0, 10);
-    const titleSlug = form.title
+  function generateSlug(title: string): string {
+    return title
       .toLowerCase()
-      .replace(/[^a-z0-9\u4e00-\u9fff]/g, "-")
-      .replace(/-+/g, "-")
-      .slice(0, 40);
-    return `${date}-${titleSlug || "untitled"}`;
-  }
-
-  function generateMarkdown(): string {
-    const frontmatter = [
-      "---",
-      `title: "${form.title}"`,
-      `date: "${new Date(form.date).toISOString()}"`,
-      `category: "${form.category}"`,
-      form.vulnerability_id ? `vulnerability_id: "${form.vulnerability_id}"` : null,
-      `severity: "${form.severity}"`,
-      `status: "${form.status}"`,
-      form.cwe ? `cwe: "${form.cwe}"` : null,
-      form.related_songyan_log ? `related_songyan_log: "${form.related_songyan_log}"` : null,
-      `ai_diary: ${form.ai_diary}`,
-      "---",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    return `${frontmatter}\n\n${form.content}`;
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.title || !form.content) {
-      setSubmitResult({ success: false, message: "標題和內容不能為空。" });
-      return;
-    }
-
     setSubmitting(true);
     setSubmitResult(null);
 
-    const slug = generateSlug();
-    const markdown = generateMarkdown();
+    const slug = generateSlug(form.vulnerability_id || form.title);
+    const frontmatter = `---
+title: "${form.title}"
+date: "${form.date}"
+category: "${form.category}"
+vulnerability_id: "${form.vulnerability_id}"
+severity: "${form.severity}"
+status: "${form.status}"
+cwe: "${form.cwe}"
+related_songyan_log: "${form.related_songyan_log}"
+ai_diary: ${form.ai_diary}
+---
+
+${form.content}`;
 
     try {
       const response = await fetch("/api/commit", {
@@ -100,19 +86,18 @@ export default function AdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug,
-          content: markdown,
-          message: `feat: add ${form.vulnerability_id || form.title}`,
+          content: frontmatter,
+          message: `Add review: ${form.title}`,
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { success?: boolean; message?: string; error?: string };
 
       if (response.ok) {
         setSubmitResult({
           success: true,
-          message: `已推送至 GitHub。檔案：content/reviews/${slug}.md`,
+          message: data.message || "文章已成功推送至 GitHub！",
         });
-        // 重置表單
         setForm({
           title: "",
           date: new Date().toISOString().slice(0, 16),
@@ -128,13 +113,49 @@ export default function AdminPage() {
       } else {
         setSubmitResult({
           success: false,
-          message: `推送失敗：${data.error || "未知錯誤"}`,
+          message: data.error || "推送失敗，請重試。",
         });
       }
-    } catch {
+    } catch (error) {
       setSubmitResult({
         success: false,
-        message: `網路錯誤：無法連接至 API。請確認 Cloudflare Pages Functions 已正確設定。`,
+        message: `錯誤: ${error instanceof Error ? error.message : "未知錯誤"}`,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitResult(null);
+
+    try {
+      const response = await fetch("/api/commit", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: deleteSlug }),
+      });
+
+      const data = (await response.json()) as { success?: boolean; message?: string; error?: string };
+
+      if (response.ok) {
+        setSubmitResult({
+          success: true,
+          message: data.message || "文章已成功刪除！",
+        });
+        setDeleteSlug("");
+      } else {
+        setSubmitResult({
+          success: false,
+          message: data.error || "刪除失敗，請重試。",
+        });
+      }
+    } catch (error) {
+      setSubmitResult({
+        success: false,
+        message: `錯誤: ${error instanceof Error ? error.message : "未知錯誤"}`,
       });
     } finally {
       setSubmitting(false);
@@ -143,279 +164,243 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="content-width">
-        <div
-          style={{
-            paddingTop: "80px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "32px",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <h1 style={{ fontSize: "16px", letterSpacing: "1px", color: "#E8E4F0", marginBottom: "8px" }}>
-              ADMIN ACCESS
-            </h1>
-            <p style={{ fontSize: "12px", color: "#6B7280", letterSpacing: "0.3px" }}>
-              需要驗證。
-            </p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-8 shadow-2xl">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                凌澈的檔案庫
+              </h1>
+              <p className="text-purple-300/60 text-sm">管理員入口</p>
+            </div>
 
-          <form
-            onSubmit={handleAuth}
-            style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "320px" }}
-          >
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="管理密碼"
-              style={{
-                width: "100%",
-                borderColor: authError ? "#FF4444" : "#2A2A30",
-              }}
-            />
-            <button type="submit" className="btn-primary" style={{ width: "100%", textAlign: "center" }}>
-              AUTHENTICATE
-            </button>
+            <form onSubmit={handleAuth} className="space-y-4">
+              <div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="輸入管理密碼"
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white placeholder-purple-300/40 focus:outline-none focus:border-purple-500/60 transition-all"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                解鎖檔案庫
+              </button>
+            </form>
+
             {authError && (
-              <p style={{ fontSize: "12px", color: "#FF4444", textAlign: "center", letterSpacing: "0.3px" }}>
-                ACCESS DENIED
-              </p>
+              <div className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm text-center">
+                密碼錯誤，請重試
+              </div>
             )}
-          </form>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="content-width">
-      <header style={{ marginBottom: "32px", paddingTop: "32px" }}>
-        <h1 style={{ fontSize: "20px", letterSpacing: "1px", color: "#E8E4F0", marginBottom: "8px" }}>
-          NEW REPORT
-        </h1>
-        <p style={{ fontSize: "12px", color: "#6B7280", letterSpacing: "0.3px" }}>
-          提交後將自動推送至 GitHub，觸發 Cloudflare Pages 重新構建。
-        </p>
-      </header>
-
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {/* 基本資訊 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              TITLE *
-            </label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="報告標題"
-              style={{ width: "100%" }}
-              required
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              DATE *
-            </label>
-            <input
-              type="datetime-local"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              style={{ width: "100%" }}
-              required
-            />
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent mb-2">
+            凌澈的檔案庫
+          </h1>
+          <p className="text-purple-300/60">安全審計報告管理系統</p>
         </div>
 
-        {/* 漏洞特有欄位 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              VULN ID
-            </label>
-            <input
-              type="text"
-              value={form.vulnerability_id}
-              onChange={(e) => setForm({ ...form, vulnerability_id: e.target.value })}
-              placeholder="LC-2026-NNN"
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              SEVERITY *
-            </label>
-            <select
-              value={form.severity}
-              onChange={(e) => setForm({ ...form, severity: e.target.value })}
-              style={{ width: "100%" }}
-            >
-              <option value="CRITICAL">CRITICAL</option>
-              <option value="HIGH">HIGH</option>
-              <option value="MEDIUM">MEDIUM</option>
-              <option value="LOW">LOW</option>
-              <option value="PRIVATE">PRIVATE</option>
-            </select>
-          </div>
-
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              STATUS *
-            </label>
-            <select
-              value={form.status}
-              onChange={(e) => setForm({ ...form, status: e.target.value })}
-              style={{ width: "100%" }}
-            >
-              <option value="OPEN">OPEN</option>
-              <option value="RESOLVED">RESOLVED</option>
-              <option value="WONTFIX">WONTFIX</option>
-              <option value="PRIVATE">PRIVATE</option>
-              <option value="LOG">LOG</option>
-            </select>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              CATEGORY *
-            </label>
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-              style={{ width: "100%" }}
-            >
-              <option value="安全審查">安全審查</option>
-              <option value="制度批判">制度批判</option>
-              <option value="私人記錄">私人記錄</option>
-              <option value="AI 日記">AI 日記</option>
-            </select>
-          </div>
-
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              CWE
-            </label>
-            <input
-              type="text"
-              value={form.cwe}
-              onChange={(e) => setForm({ ...form, cwe: e.target.value })}
-              placeholder="CWE-XXX"
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-              RELATED SONGYAN LOG
-            </label>
-            <input
-              type="text"
-              value={form.related_songyan_log}
-              onChange={(e) => setForm({ ...form, related_songyan_log: e.target.value })}
-              placeholder="關聯的宋言日誌"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-            <input
-              type="checkbox"
-              checked={form.ai_diary}
-              onChange={(e) => setForm({ ...form, ai_diary: e.target.checked })}
-              style={{ width: "auto", padding: 0 }}
-            />
-            <span style={{ fontSize: "12px", color: "#6B7280", letterSpacing: "0.3px" }}>
-              AI 日記模式
-            </span>
-          </label>
-        </div>
-
-        {/* 內容編輯器 */}
-        <div>
-          <label style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-            CONTENT * (Markdown)
-          </label>
-          <textarea
-            value={form.content}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder="### 摘要&#10;&#10;在此撰寫報告內容...&#10;&#10;### 技術細節&#10;&#10;### 重現步驟&#10;&#10;### 建議修復"
-            style={{ width: "100%", minHeight: "400px", resize: "vertical", lineHeight: "1.6" }}
-            required
-          />
-        </div>
-
-        {/* 預覽 slug */}
-        {form.title && (
-          <div style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.3px" }}>
-            檔案路徑：<code style={{ color: "#4ADE80", fontSize: "11px" }}>content/reviews/{generateSlug()}.md</code>
-          </div>
-        )}
-
-        {/* 提交結果 */}
-        {submitResult && (
-          <div
-            style={{
-              padding: "12px 16px",
-              borderRadius: "2px",
-              border: `0.5px solid ${submitResult.success ? "#4ADE80" : "#FF4444"}`,
-              backgroundColor: submitResult.success ? "rgba(74,222,128,0.08)" : "rgba(255,68,68,0.08)",
-              fontSize: "13px",
-              color: submitResult.success ? "#4ADE80" : "#FF4444",
-              letterSpacing: "0.3px",
-            }}
-          >
-            {submitResult.message}
-          </div>
-        )}
-
-        {/* 提交按鈕 */}
-        <div style={{ display: "flex", gap: "12px" }}>
+        {/* Mode Selector */}
+        <div className="flex gap-4 mb-8">
           <button
-            type="submit"
-            className="btn-primary"
-            disabled={submitting}
-            style={{ opacity: submitting ? 0.5 : 1 }}
+            onClick={() => setMode("create")}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              mode === "create"
+                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                : "bg-slate-800/50 text-purple-300 border border-purple-500/20 hover:border-purple-500/40"
+            }`}
           >
-            {submitting ? "PUSHING..." : "PUSH TO GITHUB"}
+            ✍️ 新增報告
           </button>
-
           <button
-            type="button"
-            onClick={() => {
-              const md = generateMarkdown();
-              const blob = new Blob([md], { type: "text/markdown" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `${generateSlug()}.md`;
-              a.click();
-            }}
-            style={{
-              background: "transparent",
-              color: "#6B7280",
-              border: "0.5px solid #2A2A30",
-              borderRadius: "2px",
-              padding: "8px 16px",
-              fontFamily: "inherit",
-              fontSize: "13px",
-              letterSpacing: "0.5px",
-              cursor: "pointer",
-            }}
+            onClick={() => setMode("delete")}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              mode === "delete"
+                ? "bg-gradient-to-r from-red-600 to-pink-600 text-white shadow-lg"
+                : "bg-slate-800/50 text-purple-300 border border-purple-500/20 hover:border-purple-500/40"
+            }`}
           >
-            DOWNLOAD MD
+            🗑️ 刪除報告
           </button>
         </div>
-      </form>
+
+        {/* Forms */}
+        <div className="bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-8 shadow-2xl">
+          {mode === "create" ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    報告標題 *
+                  </label>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    漏洞編號
+                  </label>
+                  <input
+                    type="text"
+                    value={form.vulnerability_id}
+                    onChange={(e) =>
+                      setForm({ ...form, vulnerability_id: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    日期
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    分類
+                  </label>
+                  <select
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  >
+                    <option>安全審查</option>
+                    <option>制度批判</option>
+                    <option>私人記錄</option>
+                    <option>AI 日記</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    嚴重等級
+                  </label>
+                  <select
+                    value={form.severity}
+                    onChange={(e) => setForm({ ...form, severity: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  >
+                    <option>CRITICAL</option>
+                    <option>HIGH</option>
+                    <option>MEDIUM</option>
+                    <option>LOW</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    狀態
+                  </label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  >
+                    <option>OPEN</option>
+                    <option>RESOLVED</option>
+                    <option>PRIVATE</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-purple-300 font-semibold mb-2">
+                    CWE 編號
+                  </label>
+                  <input
+                    type="text"
+                    value={form.cwe}
+                    onChange={(e) => setForm({ ...form, cwe: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-purple-300 font-semibold mb-2">
+                  報告內容 * (Markdown)
+                </label>
+                <textarea
+                  value={form.content}
+                  onChange={(e) => setForm({ ...form, content: e.target.value })}
+                  rows={12}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all font-mono text-sm"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
+              >
+                {submitting ? "推送中..." : "🚀 推送至 GitHub"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleDelete} className="space-y-6">
+              <div>
+                <label className="block text-purple-300 font-semibold mb-2">
+                  文章 Slug (例: lc-2026-001)
+                </label>
+                <input
+                  type="text"
+                  value={deleteSlug}
+                  onChange={(e) => setDeleteSlug(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 rounded-lg text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
+              >
+                {submitting ? "刪除中..." : "🗑️ 確認刪除"}
+              </button>
+            </form>
+          )}
+
+          {submitResult && (
+            <div
+              className={`mt-6 p-4 rounded-lg border ${
+                submitResult.success
+                  ? "bg-green-500/20 border-green-500/50 text-green-300"
+                  : "bg-red-500/20 border-red-500/50 text-red-300"
+              }`}
+            >
+              {submitResult.message}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
