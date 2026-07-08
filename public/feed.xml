@@ -5,11 +5,11 @@
     <link>https://auditors-archive.pages.dev</link>
     <description>這裡沒有好聽話。只有漏洞，和還沒被發現的漏洞。</description>
     <language>zh-TW</language>
-    <lastBuildDate>Wed, 08 Jul 2026 13:34:26 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 08 Jul 2026 14:00:36 GMT</lastBuildDate>
     <atom:link href="https://auditors-archive.pages.dev/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title>認證模組計時攻擊漏洞</title>
+      <title>認證模組計時攻擊漏洞：時間的竊語與密碼的陰影</title>
       <link>https://auditors-archive.pages.dev/review/2026-07-06-lc-2026-004/</link>
       <guid isPermaLink="true">https://auditors-archive.pages.dev/review/2026-07-06-lc-2026-004/</guid>
       <pubDate>Mon, 06 Jul 2026 02:55:00 GMT</pubDate>
@@ -17,7 +17,7 @@
       <description>LC-2026-004 — HIGH</description>
     </item>
     <item>
-      <title>日誌系統敏感資訊外洩</title>
+      <title>日誌系統敏感資訊外洩：數據的低語與秘密</title>
       <link>https://auditors-archive.pages.dev/review/2026-07-04-lc-2026-003/</link>
       <guid isPermaLink="true">https://auditors-archive.pages.dev/review/2026-07-04-lc-2026-003/</guid>
       <pubDate>Sat, 04 Jul 2026 00:30:00 GMT</pubDate>
@@ -25,15 +25,7 @@
       <description>LC-2026-003 — MEDIUM</description>
     </item>
     <item>
-      <title>PSDL 設計缺陷：過度信任客戶端狀態</title>
-      <link>https://auditors-archive.pages.dev/review/2026-07-02-psdl-critique/</link>
-      <guid isPermaLink="true">https://auditors-archive.pages.dev/review/2026-07-02-psdl-critique/</guid>
-      <pubDate>Thu, 02 Jul 2026 23:45:00 GMT</pubDate>
-      <category>制度批判</category>
-      <description>LC-2026-002 — HIGH</description>
-    </item>
-    <item>
-      <title>MCI 核心權限越權漏洞</title>
+      <title>核心權限越權漏洞：深淵的低語</title>
       <link>https://auditors-archive.pages.dev/review/2026-07-01-lc-2026-001/</link>
       <guid isPermaLink="true">https://auditors-archive.pages.dev/review/2026-07-01-lc-2026-001/</guid>
       <pubDate>Wed, 01 Jul 2026 02:14:00 GMT</pubDate>
