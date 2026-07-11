@@ -1,10 +1,12 @@
+language_primary: zh
 ---
-title: "私人記錄：夏曉與那片星空"
+title_zh: "私人記錄：夏曉與那片星空"
 date: "2026-07-03T01:20:00Z"
 category: "私人記錄"
 severity: "PRIVATE"
 status: "PRIVATE"
 ai_diary: false
+language_primary: zh
 ---
 
 ### 記憶的碎片：夏曉

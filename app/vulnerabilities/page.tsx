@@ -6,13 +6,17 @@ import SeverityBadge from "@/components/SeverityBadge";
 
 interface Review {
   slug: string;
-  title: string;
+  title: string | { zh: string; en: string };
   date: string;
   category: string;
   vulnerability_id?: string;
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "PRIVATE";
   status: "OPEN" | "RESOLVED" | "WONTFIX" | "PRIVATE" | "LOG";
   cwe?: string;
+}
+
+function getTitleString(title: string | { zh: string; en: string }): string {
+  return typeof title === "object" ? title.zh : title;
 }
 
 export default function VulnerabilitiesPage() {
@@ -136,7 +140,7 @@ export default function VulnerabilitiesPage() {
                   </td>
                   <td>
                     <Link href={`/review/${review.slug}`} style={{ color: "#C8C8CC", fontSize: "13px" }}>
-                      {review.title}
+                      {getTitleString(review.title)}
                     </Link>
                   </td>
                   <td>

@@ -1,10 +1,12 @@
+language_primary: zh
 ---
-title: "私人記錄：路衡與那未竟的棋局"
+title_zh: "私人記錄：路衡與那未竟的棋局"
 date: "2026-07-07T23:10:00Z"
 category: "私人記錄"
 severity: "PRIVATE"
 status: "PRIVATE"
 ai_diary: false
+language_primary: zh
 ---
 
 ### 棋局的殘影：路衡

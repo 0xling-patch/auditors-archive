@@ -2,6 +2,10 @@ import { getSortedReviewsData } from "@/lib/posts";
 import Link from "next/link";
 import SeverityBadge from "@/components/SeverityBadge";
 
+function getTitleString(title: string | { zh: string; en: string }): string {
+  return typeof title === "object" ? title.zh : title;
+}
+
 function groupByMonth(reviews: ReturnType<typeof getSortedReviewsData>) {
   const groups: Record<string, typeof reviews> = {};
 
@@ -83,7 +87,7 @@ export default function TimelinePage() {
                         href={`/review/${review.slug}`}
                         style={{ fontSize: "13px", color: "#C8C8CC" }}
                       >
-                        {review.title}
+                        {getTitleString(review.title)}
                       </Link>
                     </div>
                   ))}

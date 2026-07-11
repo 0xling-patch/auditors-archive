@@ -17,12 +17,17 @@ export async function generateMetadata({
 }) {
   try {
     const review = await getReviewData(params.slug);
+    const titleStr = typeof review.title === "object" ? review.title.zh : review.title;
     return {
-      title: `${review.vulnerability_id ? review.vulnerability_id + " — " : ""}${review.title} | AUDITOR'S ARCHIVE`,
+      title: `${review.vulnerability_id ? review.vulnerability_id + " — " : ""}${titleStr} | AUDITOR'S ARCHIVE`,
     };
   } catch {
     return { title: "AUDITOR'S ARCHIVE" };
   }
+}
+
+function getTitleString(title: string | { zh: string; en: string }): string {
+  return typeof title === "object" ? title.zh : title;
 }
 
 export default async function ReviewPage({
@@ -82,7 +87,7 @@ export default async function ReviewPage({
           </div>
 
           <h1 style={{ fontSize: "22px", letterSpacing: "0.5px", color: "#E8E4F0", marginBottom: "16px" }}>
-            {review.title}
+            {getTitleString(review.title)}
           </h1>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "8px" }}>
@@ -179,14 +184,14 @@ export default async function ReviewPage({
           <div>
             {prevReview && (
               <Link href={`/review/${prevReview.slug}`} style={{ fontSize: "12px", color: "#6B7280" }}>
-                ← {prevReview.title}
+                ← {getTitleString(prevReview.title)}
               </Link>
             )}
           </div>
           <div>
             {nextReview && (
               <Link href={`/review/${nextReview.slug}`} style={{ fontSize: "12px", color: "#6B7280", textAlign: "right", display: "block" }}>
-                {nextReview.title} →
+                {getTitleString(nextReview.title)} →
               </Link>
             )}
           </div>
