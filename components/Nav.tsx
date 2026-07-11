@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LanguageToggle } from "./LanguageToggle";
 
 const navLinks = [
   { href: "/", label: "INDEX" },
@@ -42,6 +43,7 @@ export default function Nav() {
       </Link>
 
       <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+        <LanguageToggle className="mr-4" />
         {navLinks.map((link) => (
           <Link
             key={link.href}

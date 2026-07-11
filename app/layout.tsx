@@ -3,6 +3,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import PageHalo from "@/components/PageHalo";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "AUDITOR'S ARCHIVE",
@@ -17,12 +18,14 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" className="dark">
       <body>
-        <PageHalo />
-        <Nav />
-        <main className="px-6 py-8 md:px-12 lg:px-24">
-          {children}
-        </main>
-        <Footer />
+        <LanguageProvider>
+          <PageHalo />
+          <Nav />
+          <main className="px-6 py-8 md:px-12 lg:px-24">
+            {children}
+          </main>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );
