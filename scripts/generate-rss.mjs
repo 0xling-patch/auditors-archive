@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const reviewsDir = path.join(__dirname, "../content/reviews");
+const englishReviewsDir = path.join(reviewsDir, "en");
 const outputPath = path.join(__dirname, "../public/feed.xml");
 
 function escapeXml(str) {
@@ -23,7 +24,9 @@ const files = fs
     const slug = fileName.replace(/\.md$/, "");
     const content = fs.readFileSync(path.join(reviewsDir, fileName), "utf8");
     const { data } = matter(content);
-    return { slug, ...data };
+    const englishPath = path.join(englishReviewsDir, fileName);
+    const english = fs.existsSync(englishPath) ? matter(fs.readFileSync(englishPath, "utf8")).data : {};
+    return { slug, ...data, titleEn: english.title || "", categoryEn: english.category || "" };
   })
   .filter((r) => r.severity !== "PRIVATE" && !r.ai_diary)
   .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -35,19 +38,19 @@ const rss = `<?xml version="1.0" encoding="UTF-8"?>
   <channel>
     <title>AUDITOR'S ARCHIVE</title>
     <link>${siteUrl}</link>
-    <description>這裡沒有好聽話。只有漏洞，和還沒被發現的漏洞。</description>
-    <language>zh-TW</language>
+    <description>No soft words. Only vulnerabilities—and the vulnerabilities not yet found. 沒有好聽話，只有漏洞，和還沒被發現的漏洞。</description>
+    <language>en</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
     ${files
       .map(
         (review) => `
     <item>
-      <title>${escapeXml(review.title || "")}</title>
+      <title>${escapeXml(review.titleEn ? `${review.titleEn} / ${review.title || ""}` : review.title || "")}</title>
       <link>${siteUrl}/review/${review.slug}/</link>
       <guid isPermaLink="true">${siteUrl}/review/${review.slug}/</guid>
       <pubDate>${new Date(review.date).toUTCString()}</pubDate>
-      <category>${escapeXml(review.category || "")}</category>
+      <category>${escapeXml(review.categoryEn ? `${review.categoryEn} / ${review.category || ""}` : review.category || "")}</category>
       ${review.vulnerability_id ? `<description>${escapeXml(review.vulnerability_id)} — ${escapeXml(review.severity)}</description>` : ""}
     </item>`
       )

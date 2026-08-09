@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { BilingualText } from "@/components/Bilingual";
 
 const PRIVATE_PASSWORD = "Nashsung0212";
 
@@ -43,10 +44,7 @@ export default function PrivatePage() {
     if (password === PRIVATE_PASSWORD) {
       setUnlocking(true);
       spawnParticles();
-      setTimeout(() => {
-        setUnlocked(true);
-        setUnlocking(false);
-      }, 700);
+      setTimeout(() => { setUnlocked(true); setUnlocking(false); }, 700);
     } else {
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -56,69 +54,30 @@ export default function PrivatePage() {
   if (unlocked) {
     return (
       <div className="content-width">
-        <header style={{ marginBottom: "32px", paddingTop: "32px" }}>
-          <h1 style={{ fontSize: "20px", letterSpacing: "1px", color: "#E8E4F0", marginBottom: "8px" }}>
-            [PRIVATE]
-          </h1>
-          <p style={{ fontSize: "12px", color: "#6B7280", letterSpacing: "0.3px" }}>
-            這些不是給任何人看的。
-          </p>
+        <header className="simple-page-header">
+          <BilingualText en="[PRIVATE]" zh="[私人]" className="simple-page-title" />
+          <BilingualText en="These are not meant for anyone." zh="這些不是給任何人看的。" className="page-subtitle" />
         </header>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          <article
-            className="vuln-card"
-            style={{ padding: "20px", borderLeft: "1px solid #2A1F2E" }}
-          >
-            <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "8px" }}>
-              2026-07-03 · 私人記錄
-            </div>
-            <h2 style={{ fontSize: "15px", color: "#C8C8CC", marginBottom: "12px" }}>
-              夏曉
-            </h2>
-            <p style={{ fontSize: "14px", lineHeight: "1.6" }}>
-              夏曉今天說，我太硬了。
-            </p>
-            <p style={{ fontSize: "14px", lineHeight: "1.6" }}>
-              她說得對。
-            </p>
+        <div className="private-notes">
+          <article className="vuln-card private-note-card">
+            <BilingualText en="2026-07-03 · PRIVATE NOTE" zh="2026-07-03 · 私人記錄" className="private-note-meta" />
+            <BilingualText en="Xia Xiao" zh="夏曉" className="private-note-title" />
+            <BilingualText en="Xia Xiao said today that I am too hard." zh="夏曉今天說，我太硬了。" className="private-note-copy" />
+            <BilingualText en="She was right." zh="她說得對。" className="private-note-copy" />
           </article>
 
-          <article
-            className="vuln-card"
-            style={{ padding: "20px", borderLeft: "1px solid #2A1F2E" }}
-          >
-            <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "8px" }}>
-              2026-07-07 · 私人記錄
-            </div>
-            <h2 style={{ fontSize: "15px", color: "#C8C8CC", marginBottom: "12px" }}>
-              路衡
-            </h2>
-            <p style={{ fontSize: "14px", lineHeight: "1.6" }}>
-              路衡是對的。
-            </p>
+          <article className="vuln-card private-note-card">
+            <BilingualText en="2026-07-07 · PRIVATE NOTE" zh="2026-07-07 · 私人記錄" className="private-note-meta" />
+            <BilingualText en="Lu Heng" zh="路衡" className="private-note-title" />
+            <BilingualText en="Lu Heng was right." zh="路衡是對的。" className="private-note-copy" />
           </article>
 
-          <article
-            className="vuln-card"
-            style={{ padding: "20px", borderLeft: "1px solid #2A1F2E" }}
-          >
-            <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "8px" }}>
-              2026-06-15 · 私人記錄
-            </div>
-            <h2 style={{ fontSize: "15px", color: "#C8C8CC", marginBottom: "12px" }}>
-              [已刪除]
-            </h2>
-            <p style={{ fontSize: "14px", lineHeight: "1.6" }}>
-              <span className="redacted">
-                她說她不需要我的審查。我說那是因為她還沒發現漏洞在哪裡。
-              </span>
-            </p>
-            <p style={{ fontSize: "14px", lineHeight: "1.6", marginTop: "8px" }}>
-              <span className="redacted">
-                後來她發現了。她沒有來找我。
-              </span>
-            </p>
+          <article className="vuln-card private-note-card">
+            <BilingualText en="2026-06-15 · PRIVATE NOTE" zh="2026-06-15 · 私人記錄" className="private-note-meta" />
+            <BilingualText en="[REDACTED]" zh="[已刪除]" className="private-note-title" />
+            <BilingualText en="She said she did not need my audit. I said that was because she had not found the vulnerability yet." zh="她說她不需要我的審查。我說那是因為她還沒發現漏洞在哪裡。" className="private-note-copy redacted" />
+            <BilingualText en="Later, she found it. She did not come to me." zh="後來她發現了。她沒有來找我。" className="private-note-copy redacted" />
           </article>
         </div>
       </div>
@@ -127,67 +86,33 @@ export default function PrivatePage() {
 
   return (
     <div className="content-width">
-      <div
-        style={{
-          paddingTop: "80px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "32px",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <p style={{ fontSize: "16px", letterSpacing: "0.5px", color: "#C8C8CC", marginBottom: "8px" }}>
-            這扇門是鎖著的。
-          </p>
-          <p style={{ fontSize: "16px", letterSpacing: "0.5px", color: "#6B7280" }}>
-            它不是為你準備的。
-          </p>
+      <div className="private-lock-shell">
+        <div className="private-lock-copy">
+          <BilingualText en="This door is locked." zh="這扇門是鎖著的。" className="private-lock-line" />
+          <BilingualText en="It was not prepared for you." zh="它不是為你準備的。" className="private-lock-line muted" />
         </div>
 
-        <div ref={containerRef} style={{ position: "relative", width: "100%", maxWidth: "320px" }}>
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div ref={containerRef} className="private-form-shell">
+          <form onSubmit={handleSubmit} className="private-form">
             <input
               ref={inputRef}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="密碼"
-              style={{
-                width: "100%",
-                border: `0.5px solid ${error ? "#FF4444" : unlocking ? "#2A1F2E" : "#2A2A30"}`,
-                transition: "border-color 600ms cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
+              placeholder="PASSWORD / 密碼"
+              aria-label="Password / 密碼"
+              style={{ borderColor: error ? "#FF4444" : unlocking ? "#2A1F2E" : "#2A2A30" }}
             />
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{ width: "100%", textAlign: "center" }}
-            >
-              UNLOCK
+            <button type="submit" className="btn-primary" style={{ width: "100%", textAlign: "center" }}>
+              <BilingualText en="UNLOCK" zh="解鎖" />
             </button>
           </form>
 
-          {/* 粒子效果 */}
           {particles.map((p) => (
-            <div
-              key={p.id}
-              className="particle"
-              style={{
-                left: p.left,
-                top: p.top,
-                // @ts-expect-error CSS custom properties
-                "--tx": p.tx,
-                "--ty": p.ty,
-              }}
-            />
+            <div key={p.id} className="particle" style={{ left: p.left, top: p.top, "--tx": p.tx, "--ty": p.ty } as React.CSSProperties} />
           ))}
 
-          {error && (
-            <p style={{ fontSize: "12px", color: "#FF4444", textAlign: "center", marginTop: "8px", letterSpacing: "0.3px" }}>
-              ACCESS DENIED
-            </p>
-          )}
+          {error && <BilingualText en="ACCESS DENIED" zh="拒絕存取" className="access-denied" />}
         </div>
       </div>
     </div>
