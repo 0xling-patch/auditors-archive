@@ -1,35 +1,26 @@
-import { getAllReviewSlugs, getReviewData } from "@/lib/posts";
+import { getAllReviewSlugs, getReviewData, getSortedReviewsData } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import SeverityBadge from "@/components/SeverityBadge";
 import ReviewContent from "@/components/ReviewContent";
 import Link from "next/link";
-import { getSortedReviewsData } from "@/lib/posts";
 
 export async function generateStaticParams() {
-  const slugs = getAllReviewSlugs();
-  return slugs;
+  return getAllReviewSlugs();
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export async function generateMetadata({ params }: { params: { slug: string } }) {
   try {
     const review = await getReviewData(params.slug);
     return {
-      title: `${review.vulnerability_id ? review.vulnerability_id + " — " : ""}${review.title} | AUDITOR'S ARCHIVE`,
+      title: `${review.vulnerability_id ? `${review.vulnerability_id} — ` : ""}${review.title} | AUDITOR'S ARCHIVE`,
+      icons: { icon: "/favicon.png" },
     };
   } catch {
-    return { title: "AUDITOR'S ARCHIVE" };
+    return { title: "AUDITOR'S ARCHIVE", icons: { icon: "/favicon.png" } };
   }
 }
 
-export default async function ReviewPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function ReviewPage({ params }: { params: { slug: string } }) {
   let review;
   try {
     review = await getReviewData(params.slug);
@@ -51,147 +42,72 @@ export default async function ReviewPage({
   };
 
   return (
-    <div className="content-width">
-      <div style={{ paddingTop: "32px" }}>
-        {/* 頂部返回 */}
-        <Link
-          href="/"
-          style={{ fontSize: "12px", color: "#6B7280", letterSpacing: "0.3px", display: "inline-block", marginBottom: "32px" }}
-        >
-          ← INDEX
-        </Link>
+    <div className="content-width review-shell">
+      <Link href="/" className="back-link">← INDEX / ARCHIVE</Link>
 
-        {/* 頂部後設資料區 */}
-        <div
-          style={{
-            border: "0.5px solid #2A2A30",
-            borderRadius: "2px",
-            padding: "20px",
-            marginBottom: "32px",
-            backgroundColor: "#141414",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
-            <SeverityBadge severity={review.severity} />
-            <span className={statusClass[review.status] || "status-wontfix"} style={{ fontSize: "11px", letterSpacing: "0.5px" }}>
-              {review.status}
-            </span>
-            <span style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.3px" }}>
-              {review.category}
-            </span>
-          </div>
-
-          <h1 style={{ fontSize: "22px", letterSpacing: "0.5px", color: "#E8E4F0", marginBottom: "16px" }}>
-            {review.title}
-          </h1>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "8px" }}>
-            {review.vulnerability_id && (
-              <div>
-                <span style={{ fontSize: "10px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "2px" }}>
-                  VULN ID
-                </span>
-                <span style={{ fontSize: "13px", fontFamily: "monospace", color: "#C8C8CC" }}>
-                  {review.vulnerability_id}
-                </span>
-              </div>
-            )}
-
-            <div>
-              <span style={{ fontSize: "10px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "2px" }}>
-                DATE
-              </span>
-              <span style={{ fontSize: "13px", fontFamily: "monospace", color: "#C8C8CC" }}>
-                {new Date(review.date).toLocaleDateString("zh-TW")}
-              </span>
-            </div>
-
-            {review.cwe && (
-              <div>
-                <span style={{ fontSize: "10px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "2px" }}>
-                  CWE
-                </span>
-                <span style={{ fontSize: "13px", fontFamily: "monospace", color: "#C8C8CC" }}>
-                  {review.cwe}
-                </span>
-              </div>
-            )}
-
-            {review.related_songyan_log && (
-              <div>
-                <span style={{ fontSize: "10px", color: "#6B7280", letterSpacing: "0.5px", display: "block", marginBottom: "2px" }}>
-                  RELATED LOG
-                </span>
-                <span style={{ fontSize: "13px", color: "#C8C8CC" }}>
-                  {review.related_songyan_log}
-                </span>
-              </div>
-            )}
-          </div>
+      <section className="review-meta-card">
+        <div className="review-meta-row">
+          <SeverityBadge severity={review.severity} />
+          <span className={statusClass[review.status] || "status-wontfix"} style={{ fontSize: "10px", letterSpacing: "0.7px" }}>
+            {review.status}
+          </span>
+          <span className="card-category">{review.category}</span>
         </div>
 
-        {/* 報告內文（含垂直線滾動效果） */}
-        <ReviewContent content={review.content || ""} />
+        <h1 className="review-title">{review.title}</h1>
 
-        {/* 更新記錄 */}
-        <div style={{ marginTop: "48px", borderTop: "0.5px solid #25252A", paddingTop: "24px" }}>
-          <div style={{ fontSize: "11px", color: "#6B7280", letterSpacing: "0.8px", marginBottom: "16px" }}>
-            CHANGELOG
+        <div className="review-facts">
+          {review.vulnerability_id && (
+            <div className="review-fact">
+              <span className="review-fact-label">VULN ID</span>
+              <span className="review-fact-value">{review.vulnerability_id}</span>
+            </div>
+          )}
+          <div className="review-fact">
+            <span className="review-fact-label">DATE</span>
+            <span className="review-fact-value">{new Date(review.date).toLocaleDateString("zh-TW")}</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ display: "flex", gap: "16px", fontSize: "12px" }}>
-              <span style={{ color: "#6B7280", fontFamily: "monospace", minWidth: "100px" }}>
-                {new Date(review.date).toLocaleDateString("zh-TW")}
-              </span>
-              <span style={{ color: "#C8C8CC" }}>初次發布</span>
+          {review.cwe && (
+            <div className="review-fact">
+              <span className="review-fact-label">CWE</span>
+              <span className="review-fact-value">{review.cwe}</span>
             </div>
-            {review.status === "RESOLVED" && (
-              <div style={{ display: "flex", gap: "16px", fontSize: "12px" }}>
-                <span style={{ color: "#6B7280", fontFamily: "monospace", minWidth: "100px" }}>
-                  —
-                </span>
-                <span className="status-resolved">已標記為 RESOLVED</span>
-              </div>
-            )}
-            {/* 刻意保留的「已刪除」痕跡 */}
-            <div style={{ display: "flex", gap: "16px", fontSize: "12px" }}>
-              <span style={{ color: "#6B7280", fontFamily: "monospace", minWidth: "100px" }}>
-                [已刪除]
-              </span>
-              <span className="redacted">
-                原始版本包含更尖銳的措辭。已於發布後 2 小時內修改。
-              </span>
+          )}
+          {review.related_songyan_log && (
+            <div className="review-fact">
+              <span className="review-fact-label">RELATED LOG</span>
+              <span className="review-fact-value">{review.related_songyan_log}</span>
             </div>
+          )}
+        </div>
+      </section>
+
+      <ReviewContent content={review.content || ""} />
+
+      <section className="review-divider" aria-labelledby="changelog-title">
+        <div id="changelog-title" className="changelog-label">CHANGELOG</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div className="changelog-row">
+            <span className="changelog-date">{new Date(review.date).toLocaleDateString("zh-TW")}</span>
+            <span>初次發布</span>
+          </div>
+          {review.status === "RESOLVED" && (
+            <div className="changelog-row">
+              <span className="changelog-date">—</span>
+              <span className="status-resolved">已標記為 RESOLVED</span>
+            </div>
+          )}
+          <div className="changelog-row">
+            <span className="changelog-date">[已刪除]</span>
+            <span className="redacted">原始版本包含更尖銳的措辭。已於發布後 2 小時內修改。</span>
           </div>
         </div>
+      </section>
 
-        {/* 上一篇 / 下一篇 */}
-        <div
-          style={{
-            marginTop: "48px",
-            borderTop: "0.5px solid #25252A",
-            paddingTop: "24px",
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "16px",
-          }}
-        >
-          <div>
-            {prevReview && (
-              <Link href={`/review/${prevReview.slug}`} style={{ fontSize: "12px", color: "#6B7280" }}>
-                ← {prevReview.title}
-              </Link>
-            )}
-          </div>
-          <div>
-            {nextReview && (
-              <Link href={`/review/${nextReview.slug}`} style={{ fontSize: "12px", color: "#6B7280", textAlign: "right", display: "block" }}>
-                {nextReview.title} →
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+      <nav className="review-divider review-navigation" aria-label="相鄰報告">
+        <div>{prevReview && <Link href={`/review/${prevReview.slug}`}>← {prevReview.title}</Link>}</div>
+        <div>{nextReview && <Link href={`/review/${nextReview.slug}`}>{nextReview.title} →</Link>}</div>
+      </nav>
     </div>
   );
 }

@@ -16,10 +16,7 @@ function StatusBadge({ status }: { status: ReviewData["status"] }) {
   };
 
   return (
-    <span
-      className={statusMap[status] || "status-wontfix"}
-      style={{ fontSize: "11px", letterSpacing: "0.5px" }}
-    >
+    <span className={statusMap[status] || "status-wontfix"} style={{ fontSize: "10px", letterSpacing: "0.7px" }}>
       {status}
     </span>
   );
@@ -30,86 +27,27 @@ export default function LogCard({ review }: LogCardProps) {
   const isAiDiary = review.ai_diary;
 
   return (
-    <Link href={`/review/${review.slug}`} style={{ display: "block" }}>
-      <article className="vuln-card" style={{ padding: "16px 20px" }}>
-        {/* 頂部 meta */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "10px",
-            flexWrap: "wrap",
-          }}
-        >
-          {review.vulnerability_id && !isPrivate && (
-            <span
-              style={{
-                fontSize: "11px",
-                letterSpacing: "0.5px",
-                color: "#6B7280",
-                fontFamily: "monospace",
-              }}
-            >
-              {review.vulnerability_id}
-            </span>
-          )}
-
+    <Link href={`/review/${review.slug}`} aria-label={`閱讀：${review.title}`}>
+      <article className="vuln-card">
+        <div className="card-meta">
+          {review.vulnerability_id && !isPrivate && <span className="card-id">{review.vulnerability_id}</span>}
           <SeverityBadge severity={review.severity} />
-
           <StatusBadge status={review.status} />
-
-          <span
-            style={{
-              fontSize: "11px",
-              color: "#6B7280",
-              letterSpacing: "0.3px",
-            }}
-          >
-            {review.category}
-          </span>
-
-          {isAiDiary && (
-            <span
-              style={{
-                fontSize: "10px",
-                color: "#6B7280",
-                border: "0.5px solid #2A2A30",
-                padding: "1px 4px",
-                borderRadius: "2px",
-              }}
-            >
-              AI LOG
-            </span>
-          )}
+          <span className="card-category">{review.category}</span>
+          {isAiDiary && <span className="card-category">AI LOG</span>}
         </div>
 
-        {/* 標題 */}
-        <h2
-          style={{
-            fontSize: "15px",
-            letterSpacing: "0.3px",
-            color: "#C8C8CC",
-            marginBottom: "8px",
-            fontWeight: 500,
-          }}
-        >
-          {review.title}
-        </h2>
+        <h2 className="card-title">{review.title}</h2>
 
-        {/* 底部日期 */}
-        <div
-          style={{
-            fontSize: "11px",
-            color: "#6B7280",
-            letterSpacing: "0.3px",
-          }}
-        >
-          {new Date(review.date).toLocaleDateString("zh-TW", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          })}
+        <div className="card-footer">
+          <span className="card-date">
+            {new Date(review.date).toLocaleDateString("zh-TW", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })}
+          </span>
+          <span className="card-arrow" aria-hidden="true">↗</span>
         </div>
       </article>
     </Link>
