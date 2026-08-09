@@ -36,19 +36,6 @@ export default function VulnerabilitiesTable({ reviews }: VulnerabilitiesTablePr
     return true;
   });
 
-  const filterButtonStyle = (selected: boolean) => ({
-    fontSize: "10px",
-    letterSpacing: "0.5px",
-    padding: "2px 8px",
-    borderRadius: "2px",
-    border: "0.5px solid",
-    borderColor: selected ? "#E85D3F" : "#2A2A30",
-    background: selected ? "rgba(232,93,63,0.1)" : "transparent",
-    color: selected ? "#E85D3F" : "#6B7280",
-    cursor: "pointer",
-    fontFamily: "inherit",
-  });
-
   const statusClass: Record<string, string> = {
     OPEN: "status-open",
     RESOLVED: "status-resolved",
@@ -60,8 +47,14 @@ export default function VulnerabilitiesTable({ reviews }: VulnerabilitiesTablePr
       <div className="bilingual-filter-row">
         <div className="bilingual-filter-group">
           <BilingualText en="SEVERITY:" zh="嚴重度：" className="filter-label" />
-          {["ALL", "CRITICAL", "HIGH", "MEDIUM", "LOW"].map((severity) => (
-            <button key={severity} onClick={() => setFilterSeverity(severity)} style={filterButtonStyle(filterSeverity === severity)}>
+          {['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((severity) => (
+            <button
+              key={severity}
+              type="button"
+              className={`filter-chip ${filterSeverity === severity ? "active" : ""}`}
+              onClick={() => setFilterSeverity(severity)}
+              aria-pressed={filterSeverity === severity}
+            >
               <BilingualText en={severity} zh={severityCopy[severity]} />
             </button>
           ))}
@@ -69,16 +62,22 @@ export default function VulnerabilitiesTable({ reviews }: VulnerabilitiesTablePr
 
         <div className="bilingual-filter-group">
           <BilingualText en="STATUS:" zh="狀態：" className="filter-label" />
-          {["ALL", "OPEN", "RESOLVED", "WONTFIX"].map((status) => (
-            <button key={status} onClick={() => setFilterStatus(status)} style={filterButtonStyle(filterStatus === status)}>
+          {['ALL', 'OPEN', 'RESOLVED', 'WONTFIX'].map((status) => (
+            <button
+              key={status}
+              type="button"
+              className={`filter-chip ${filterStatus === status ? "active" : ""}`}
+              onClick={() => setFilterStatus(status)}
+              aria-pressed={filterStatus === status}
+            >
               <BilingualText en={status} zh={statusCopy[status].zh} />
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ fontFamily: "monospace" }}>
+      <div className="table-shell">
+        <table className="archive-table">
           <thead>
             <tr>
               <th><BilingualText en="ID" zh="編號" /></th>
@@ -92,26 +91,26 @@ export default function VulnerabilitiesTable({ reviews }: VulnerabilitiesTablePr
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: "center", color: "#6B7280", padding: "32px" }}>
+                <td colSpan={6} className="table-empty">
                   <BilingualText en="NO RESULTS FOUND" zh="找不到結果" />
                 </td>
               </tr>
             ) : filtered.map((review) => (
               <tr key={review.slug}>
-                <td style={{ fontFamily: "monospace", fontSize: "12px", color: "#6B7280", whiteSpace: "nowrap" }}>{review.vulnerability_id || "—"}</td>
+                <td className="table-id">{review.vulnerability_id || "—"}</td>
                 <td><SeverityBadge severity={review.severity} /></td>
                 <td>
-                  <Link href={`/review/${review.slug}`} style={{ color: "#C8C8CC", fontSize: "13px" }}>
+                  <Link href={`/review/${review.slug}`} className="table-title-link">
                     <BilingualText en={review.titleEn || review.title} zh={review.title} />
                   </Link>
                 </td>
                 <td>
-                  <span className={statusClass[review.status] || "status-wontfix"} style={{ fontSize: "11px", letterSpacing: "0.5px" }}>
+                  <span className={`table-status ${statusClass[review.status] || "status-wontfix"}`}>
                     <BilingualText en={review.status} zh={statusCopy[review.status]?.zh || review.status} className="badge-bilingual" />
                   </span>
                 </td>
-                <td style={{ fontSize: "12px", color: "#6B7280", fontFamily: "monospace" }}>{review.cwe || "—"}</td>
-                <td style={{ fontSize: "12px", color: "#6B7280", whiteSpace: "nowrap" }}>
+                <td className="table-cwe">{review.cwe || "—"}</td>
+                <td className="table-date">
                   <BilingualText en={new Date(review.date).toLocaleDateString("en-CA")} zh={new Date(review.date).toLocaleDateString("zh-TW")} />
                 </td>
               </tr>
