@@ -35,7 +35,7 @@ export default function Home() {
           />
         </div>
         <div className="hero-orbit" aria-hidden="true">
-          <span className="hero-orbit-core">LC</span>
+          <img className="hero-orbit-logo" src="/lingche-orbit-logo.png" alt="" />
         </div>
       </header>
 
