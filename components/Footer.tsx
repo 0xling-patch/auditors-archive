@@ -1,5 +1,13 @@
 import { BilingualText } from "./Bilingual";
 
+const footerLinks = [
+  ["Threads", "https://www.threads.com/@0xlingpatch"],
+  ["Instagram", "https://www.instagram.com/0xlingpatch/"],
+  ["X", "https://x.com/0xlingpatch"],
+  ["Substack", "https://substack.com/@0xlingpatch"],
+  ["Facebook", "https://www.facebook.com/profile.php?id=61593067474897&locale=zh_TW"],
+] as const;
+
 export default function Footer() {
   return (
     <footer className="site-footer">
@@ -8,6 +16,12 @@ export default function Footer() {
           <BilingualText en="AUDITOR&apos;S ARCHIVE" zh="凌澈的檔案庫" />
           <BilingualText en="LINGCHE" zh="凌澈" />
         </div>
+
+        <nav className="footer-social-links" aria-label="Social profiles / 社群平台">
+          {footerLinks.map(([label, href]) => (
+            <a key={label} href={href} target="_blank" rel="noreferrer">{label} <span aria-hidden="true">↗</span></a>
+          ))}
+        </nav>
 
         <BilingualText
           en="She submits her sharpest vulnerability reports between midnight and 3 a.m. After writing, she usually sleeps for four hours."

@@ -1,5 +1,13 @@
 import { BilingualText } from "@/components/Bilingual";
 
+const socialLinks = [
+  { platform: "Threads", handle: "@0xlingpatch", href: "https://www.threads.com/@0xlingpatch" },
+  { platform: "Instagram", handle: "@0xlingpatch", href: "https://www.instagram.com/0xlingpatch/" },
+  { platform: "X", handle: "@0xlingpatch", href: "https://x.com/0xlingpatch" },
+  { platform: "Substack", handle: "@0xlingpatch", href: "https://substack.com/@0xlingpatch" },
+  { platform: "Facebook", handle: "0xlingpatch", href: "https://www.facebook.com/profile.php?id=61593067474897&locale=zh_TW" },
+];
+
 export default function AboutPage() {
   return (
     <div className="content-width">
@@ -23,10 +31,25 @@ export default function AboutPage() {
 
         <hr />
 
-        <section className="about-links">
+        <section className="about-links" aria-label="Public links / 公開連結">
           <div><span className="about-link-label">PGP</span><a href="/pgp">→ /pgp</a></div>
-          <div><span className="about-link-label">X</span><span>@lingche_audit</span></div>
-          <div><span className="about-link-label">GITHUB</span><span>github.com/lingche</span></div>
+          <div><span className="about-link-label">GITHUB</span><a href="https://github.com/0xling-patch" target="_blank" rel="noreferrer">github.com/0xling-patch ↗</a></div>
+        </section>
+
+        <section className="social-links-panel" aria-label="Social profiles / 社群平台">
+          <div className="social-links-heading">
+            <BilingualText en="PUBLIC CHANNELS" zh="公開平台" />
+            <BilingualText en="Follow the archive beyond this terminal." zh="在這座終端機之外，繼續追蹤檔案庫。" className="social-links-note" />
+          </div>
+          <div className="social-links-grid">
+            {socialLinks.map((link) => (
+              <a key={link.platform} href={link.href} target="_blank" rel="noreferrer" className="social-link-card" aria-label={`Open ${link.platform} / 開啟 ${link.platform}`}>
+                <span className="social-link-platform">{link.platform}</span>
+                <span className="social-link-handle">{link.handle}</span>
+                <span className="social-link-arrow" aria-hidden="true">↗</span>
+              </a>
+            ))}
+          </div>
         </section>
 
         <hr />

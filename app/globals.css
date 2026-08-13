@@ -872,3 +872,65 @@ body {
   .review-meta-card::after { width: 130px; height: 130px; top: -50px; right: -45px; }
   .archive-signal-bar { border-radius: 13px; }
 }
+
+/* Public social profile links */
+.social-links-panel {
+  padding: clamp(16px, 3vw, 22px);
+  border: 1px solid rgba(196, 178, 235, 0.18);
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(27, 24, 44, 0.68), rgba(11, 14, 24, 0.56));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 16px 38px rgba(0,0,0,0.16);
+}
+.social-links-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--divider);
+}
+.social-links-heading > .bilingual-text:first-child {
+  color: var(--accent-cool);
+  font-family: "SF Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.social-links-note { max-width: 270px; color: var(--muted); font-size: 0.72rem; text-align: right; }
+.social-links-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.social-link-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(196,178,235,0.14);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.018);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 180ms var(--ease-out), background 180ms var(--ease-out), transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+.social-link-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(240,180,211,0.52);
+  background: linear-gradient(120deg, rgba(240,180,211,0.09), rgba(156,221,255,0.045));
+  box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+}
+.social-link-card:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: 3px; }
+.social-link-platform { color: var(--text-bright); font-family: "SF Mono", "Cascadia Code", Consolas, ui-monospace, monospace; font-size: 0.71rem; font-weight: 700; letter-spacing: 0.045em; }
+.social-link-handle { overflow: hidden; color: var(--muted); font-family: "SF Mono", "Cascadia Code", Consolas, ui-monospace, monospace; font-size: 0.66rem; text-overflow: ellipsis; white-space: nowrap; }
+.social-link-arrow { grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--accent); font-size: 0.9rem; transition: transform 180ms var(--ease-out); }
+.social-link-card:hover .social-link-arrow { transform: translate(2px, -2px); color: var(--accent-cool); }
+.footer-social-links { display: flex; flex-wrap: wrap; gap: 7px 15px; margin: 4px 0 6px; }
+.footer-social-links a { color: #898495; font-family: "SF Mono", "Cascadia Code", Consolas, ui-monospace, monospace; font-size: 0.62rem; letter-spacing: 0.035em; text-decoration: none; transition: color 160ms var(--ease-out); }
+.footer-social-links a:hover, .footer-social-links a:focus-visible { color: var(--accent); }
+.footer-social-links a:focus-visible { outline: 1px solid var(--accent-cool); outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .social-links-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .social-links-note { max-width: none; text-align: left; }
+  .social-links-grid { grid-template-columns: 1fr; }
+  .footer-social-links { gap: 8px 12px; }
+}
