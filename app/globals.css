@@ -709,3 +709,166 @@ body::before {
   .filter-label { width: 100%; margin-bottom: 2px; }
   .filter-chip { flex: 1 1 auto; }
 }
+
+/* Refined archive experience: preserve bilingual hierarchy while improving reading comfort. */
+:root {
+  --reading-ink: #e5e0ed;
+  --reading-muted: #aaa3b6;
+  --surface-glow: rgba(255, 184, 218, 0.08);
+}
+
+body {
+  font-family: Inter, "SF Pro Text", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.012em;
+}
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  isolation: isolate;
+}
+.site-nav::after {
+  content: "";
+  position: absolute;
+  right: 14%;
+  bottom: -1px;
+  left: 14%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 159, 207, 0.72), rgba(156, 221, 255, 0.65), transparent);
+  opacity: 0.62;
+}
+.nav-brand, .nav-link, .language-switcher, .signal-label, .card-id, .card-category,
+.card-date, .review-fact-label, .review-fact-value, .table-id, .table-cwe, .table-date {
+  font-family: "SF Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+}
+
+.hero-header::before {
+  content: "";
+  position: absolute;
+  inset: 12% -10% auto auto;
+  width: min(38vw, 330px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 159, 207, 0.085), transparent 68%);
+  filter: blur(7px);
+  pointer-events: none;
+}
+.hero-title {
+  font-family: "Iowan Old Style", "Songti TC", "Noto Serif TC", Georgia, serif;
+  font-weight: 500;
+  text-shadow: 0 14px 48px rgba(0,0,0,0.35);
+}
+.hero-title .bilingual-primary { font-weight: 500; }
+.hero-title .bilingual-secondary {
+  max-width: 31rem;
+  font-family: Inter, "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  font-weight: 520;
+  line-height: 1.2;
+}
+.hero-subtitle {
+  max-width: 560px;
+  border-radius: 0 10px 10px 0;
+  background: linear-gradient(90deg, rgba(255, 159, 207, 0.055), transparent 85%);
+}
+.hero-orbit { transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out); }
+.hero-orbit:hover { transform: rotate(5deg) scale(1.03); box-shadow: 0 30px 80px rgba(0,0,0,0.46), 0 0 45px rgba(240,180,211,0.11), inset -18px -12px 36px rgba(0,0,0,0.4); }
+
+.archive-signal-bar { position: relative; }
+.archive-signal-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,0.03), transparent 38%, rgba(156,221,255,0.035));
+}
+.signal-cell { position: relative; }
+.signal-cell .bilingual-primary { letter-spacing: -0.01em; }
+
+.vuln-card { transform: translateZ(0); }
+.vuln-card:focus-within { border-color: var(--border-bright); box-shadow: 0 0 0 3px rgba(255,159,207,0.12), 0 24px 52px rgba(0,0,0,0.30); }
+.card-title { font-family: Inter, "PingFang TC", "Noto Sans TC", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.012em; }
+.card-title .bilingual-primary { line-height: 1.36; }
+.card-title .bilingual-secondary { font-weight: 420; line-height: 1.5; }
+.card-footer { color: var(--reading-muted); }
+
+.review-meta-card { position: relative; overflow: hidden; }
+.review-meta-card::after {
+  content: "";
+  position: absolute;
+  top: -55px;
+  right: -50px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(156,221,255,0.12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 19px rgba(255,159,207,0.02), 0 0 0 38px rgba(156,221,255,0.015);
+  pointer-events: none;
+}
+.review-meta-card > * { position: relative; z-index: 1; }
+.review-title {
+  font-family: "Iowan Old Style", "Songti TC", "Noto Serif TC", Georgia, serif;
+  font-weight: 520;
+  line-height: 1.18;
+}
+.review-content {
+  max-width: 780px;
+  color: var(--reading-ink);
+  font-size: clamp(1rem, 1.15vw, 1.07rem);
+  line-height: 1.98;
+}
+.review-content h2 {
+  position: relative;
+  padding: 0 0 12px 15px;
+  border-bottom: 1px solid rgba(240,180,211,0.2);
+  font-family: "Iowan Old Style", "Songti TC", "Noto Serif TC", Georgia, serif;
+  font-size: clamp(1.4rem, 2.3vw, 1.8rem);
+  letter-spacing: -0.028em;
+}
+.review-content h2::before {
+  content: "";
+  position: absolute;
+  top: 0.2em;
+  bottom: 0.78em;
+  left: 0;
+  width: 2px;
+  border-radius: 99px;
+  background: linear-gradient(var(--accent-strong), var(--accent-cool));
+}
+.bilingual-review-block { border-left-color: rgba(196,178,235,0.25); transition: border-color 180ms var(--ease-out), background 180ms var(--ease-out); }
+.bilingual-review-block:hover { background: linear-gradient(90deg, rgba(255,159,207,0.035), transparent 62%); }
+.bilingual-review-primary > p { color: var(--reading-ink); }
+.bilingual-review-secondary > p { color: var(--reading-muted); }
+.bilingual-review-secondary > h1, .bilingual-review-secondary > h2, .bilingual-review-secondary > h3 { color: #bdb5c9; }
+
+.simple-page-header { padding-bottom: 22px; }
+.simple-page-title {
+  font-family: "Iowan Old Style", "Songti TC", "Noto Serif TC", Georgia, serif;
+  font-weight: 520;
+  letter-spacing: -0.025em;
+}
+.table-shell { box-shadow: 0 20px 48px rgba(0,0,0,0.25); }
+.archive-table th { position: sticky; top: 0; backdrop-filter: blur(12px); }
+.timeline-entry { position: relative; overflow: hidden; }
+.timeline-entry::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background: linear-gradient(var(--accent), var(--accent-cool)); opacity: 0; transition: opacity 180ms var(--ease-out); }
+.timeline-entry:hover::before { opacity: 1; }
+
+.bilingual-primary { font-weight: 520; }
+.bilingual-secondary { font-family: Inter, "PingFang TC", "Noto Sans TC", system-ui, sans-serif; }
+.language-option:focus-visible, .nav-link:focus-visible, .signal-link:focus-visible, .vuln-card:focus-visible, .timeline-entry:focus-visible {
+  outline: 2px solid var(--accent-cool);
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .site-nav::after { right: 8%; left: 8%; }
+  .hero-header::before { top: 3%; right: -24%; width: 70vw; }
+  .hero-title { font-size: clamp(2.65rem, 14vw, 4rem); }
+  .hero-title .bilingual-secondary { font-size: 0.48em; }
+  .review-content { font-size: 1rem; line-height: 1.9; }
+  .review-content h2 { padding-left: 12px; }
+  .review-meta-card::after { width: 130px; height: 130px; top: -50px; right: -45px; }
+  .archive-signal-bar { border-radius: 13px; }
+}
