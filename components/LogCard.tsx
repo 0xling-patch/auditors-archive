@@ -47,7 +47,7 @@ export default function LogCard({ review }: LogCardProps) {
 
   return (
     <Link href={`/review/${review.slug}`} aria-label={`Read: ${review.titleEn} / 閱讀：${review.title}`}>
-      <article className="vuln-card">
+      <article className="vuln-card" data-severity={review.severity.toLowerCase()}>
         <div className="card-meta">
           {review.vulnerability_id && !isPrivate && <span className="card-id">{review.vulnerability_id}</span>}
           <SeverityBadge severity={review.severity} />
@@ -62,7 +62,7 @@ export default function LogCard({ review }: LogCardProps) {
 
         <div className="card-footer">
           <BilingualText en={date} zh={dateZh} className="card-date" />
-          <span className="card-arrow" aria-hidden="true">↗</span>
+          <span className="card-arrow" aria-hidden="true"><small>OPEN FILE</small>↗</span>
         </div>
       </article>
     </Link>

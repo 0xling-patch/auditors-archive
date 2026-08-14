@@ -3,6 +3,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import PageHalo from "@/components/PageHalo";
+import ReadingProgress from "@/components/ReadingProgress";
 import { LanguageProvider, TranslationStatusNotice } from "@/components/Bilingual";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function RootLayout({
         <LanguageProvider>
           <PageHalo />
           <Nav />
+          <ReadingProgress />
           <TranslationStatusNotice />
           <main className="px-5 py-6 md:px-10 lg:px-20">
             {children}
