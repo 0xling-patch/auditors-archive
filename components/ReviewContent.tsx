@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLanguage } from "./Bilingual";
+import { LOCALE_OPTIONS, useAutoTranslations, useLanguage } from "./Bilingual";
 
 type Block = {
   kind: "heading" | "list" | "paragraph";
@@ -64,12 +64,17 @@ function blockKey(block: Block | undefined, index: number) {
 }
 
 export default function ReviewContent({ content, contentEn }: ReviewContentProps) {
-  const { language } = useLanguage();
+  const { language, locale, isAutoTranslationLocale } = useLanguage();
   const [isActive, setIsActive] = useState(false);
   const techRef = useRef<HTMLDivElement>(null);
   const chineseBlocks = useMemo(() => parseBlocks(content), [content]);
   const englishBlocks = useMemo(() => parseBlocks(contentEn || content), [content, contentEn]);
+  const translatedChineseBlocks = useAutoTranslations(
+    chineseBlocks.map((block) => block.text),
+    englishBlocks.map((block) => block.text)
+  );
   const blockCount = Math.max(chineseBlocks.length, englishBlocks.length);
+  const localeName = LOCALE_OPTIONS.find((option) => option.code === locale)?.nativeName || locale;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -82,12 +87,20 @@ export default function ReviewContent({ content, contentEn }: ReviewContentProps
 
   return (
     <div className={`left-plum-line review-content ${isActive ? "active" : ""}`}>
+      {isAutoTranslationLocale && (
+        <div className="machine-translation-note" role="status">
+          <span>AUTO TRANSLATION</span>
+          <span>{localeName} · 中文原文附於下方</span>
+        </div>
+      )}
       {Array.from({ length: blockCount }).map((_, index) => {
         const zh = chineseBlocks[index] || chineseBlocks[chineseBlocks.length - 1];
         const en = englishBlocks[index] || englishBlocks[englishBlocks.length - 1];
+        const translatedText = translatedChineseBlocks[index] || en?.text || zh?.text || "";
+        const translatedBlock = zh ? { ...zh, text: translatedText } : en;
         const isTechnical = /技術|technical|technical analysis/i.test(`${zh?.text || ""} ${en?.text || ""}`);
-        const primaryBlock = language === "en" ? en : zh;
-        const secondaryBlock = language === "en" ? zh : en;
+        const primaryBlock = isAutoTranslationLocale ? translatedBlock : language === "en" ? en : zh;
+        const secondaryBlock = isAutoTranslationLocale ? zh : language === "en" ? zh : en;
 
         return (
           <div

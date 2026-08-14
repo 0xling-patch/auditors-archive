@@ -3,7 +3,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import PageHalo from "@/components/PageHalo";
-import { LanguageProvider } from "@/components/Bilingual";
+import { LanguageProvider, LocalTranslationStatus } from "@/components/Bilingual";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://auditors-archive.pages.dev"),
@@ -34,6 +34,7 @@ export default function RootLayout({
         <LanguageProvider>
           <PageHalo />
           <Nav />
+          <LocalTranslationStatus />
           <main className="px-5 py-6 md:px-10 lg:px-20">
             {children}
           </main>
