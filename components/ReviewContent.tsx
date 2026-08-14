@@ -62,51 +62,59 @@ function RenderBlock({ block, className }: { block: Block; className: string }) 
   return <div className={className} dangerouslySetInnerHTML={{ __html: blockHtml(block) }} />;
 }
 
-function NativeTranslatedBlock({ chinese, english, isTechnical }: { chinese: Block; english: Block; isTechnical: boolean }) {
-  const { language, reportTranslationProgress } = useLanguage();
+function LayeredReviewBlock({ chinese, english, isTechnical }: { chinese: Block; english: Block; isTechnical: boolean }) {
+  const { primaryMode, translationLanguage, reportTranslationProgress } = useLanguage();
   const [translated, setTranslated] = useState<string | null>(null);
   const techRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     setTranslated(null);
-    translateText(chinese.text, language, reportTranslationProgress).then((result) => {
+    if (!needsNativeTranslation(translationLanguage)) return;
+    translateText(chinese.text, translationLanguage, reportTranslationProgress).then((result) => {
       if (!cancelled && result) setTranslated(result);
     });
     return () => {
       cancelled = true;
     };
-  }, [chinese.text, language, reportTranslationProgress]);
+  }, [chinese.text, reportTranslationProgress, translationLanguage]);
 
-  const primary = { ...chinese, text: translated || english.text || chinese.text };
+  const localized = translationLanguage === "zh"
+    ? chinese
+    : translationLanguage === "en"
+      ? english
+      : { ...chinese, text: translated || english.text || chinese.text };
+  const primary = primaryMode === "en" ? english : localized;
+  const secondary = primaryMode === "en"
+    ? translationLanguage === "en" ? chinese : localized
+    : english;
+
   return (
     <div
       ref={isTechnical ? techRef : undefined}
       className={`bilingual-review-block bilingual-review-${primary.kind}`}
     >
       <RenderBlock block={primary} className="bilingual-review-primary" />
-      <RenderBlock block={chinese} className="bilingual-review-secondary" />
+      <RenderBlock block={secondary} className="bilingual-review-secondary" />
     </div>
   );
 }
 
 export default function ReviewContent({ content, contentEn }: ReviewContentProps) {
-  const { language } = useLanguage();
   const [isActive, setIsActive] = useState(false);
-  const techRef = useRef<HTMLDivElement>(null);
   const chineseBlocks = useMemo(() => parseBlocks(content), [content]);
   const englishBlocks = useMemo(() => parseBlocks(contentEn || content), [content, contentEn]);
   const blockCount = Math.max(chineseBlocks.length, englishBlocks.length);
-  const nativeLanguage = needsNativeTranslation(language);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => setIsActive(entries.some((entry) => entry.isIntersecting)),
       { threshold: 0.1 }
     );
-    if (techRef.current) observer.observe(techRef.current);
+    const technicalBlock = document.querySelector<HTMLElement>(".review-content .bilingual-review-block");
+    if (technicalBlock) observer.observe(technicalBlock);
     return () => observer.disconnect();
-  }, [blockCount, nativeLanguage]);
+  }, [blockCount]);
 
   return (
     <div className={`left-plum-line review-content ${isActive ? "active" : ""}`}>
@@ -114,23 +122,7 @@ export default function ReviewContent({ content, contentEn }: ReviewContentProps
         const zh = chineseBlocks[index] || chineseBlocks[chineseBlocks.length - 1] || { kind: "paragraph" as const, text: "" };
         const en = englishBlocks[index] || englishBlocks[englishBlocks.length - 1] || zh;
         const isTechnical = /技術|technical|technical analysis/i.test(`${zh.text} ${en.text}`);
-
-        if (nativeLanguage) {
-          return <NativeTranslatedBlock key={blockKey(zh, index)} chinese={zh} english={en} isTechnical={isTechnical} />;
-        }
-
-        const primaryBlock = language === "en" ? en : zh;
-        const secondaryBlock = language === "en" ? zh : en;
-        return (
-          <div
-            key={blockKey(primaryBlock, index)}
-            ref={isTechnical ? techRef : undefined}
-            className={`bilingual-review-block bilingual-review-${primaryBlock.kind}`}
-          >
-            <RenderBlock block={primaryBlock} className="bilingual-review-primary" />
-            <RenderBlock block={secondaryBlock} className="bilingual-review-secondary" />
-          </div>
-        );
+        return <LayeredReviewBlock key={blockKey(zh, index)} chinese={zh} english={en} isTechnical={isTechnical} />;
       })}
     </div>
   );
