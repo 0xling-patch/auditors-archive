@@ -629,8 +629,7 @@ body::before {
 .card-title .bilingual-primary { color: var(--text-bright); }
 .card-title .bilingual-secondary { margin-top: 3px; color: var(--muted); }
 .card-footer { margin-top: 18px; padding-top: 13px; border-top: 1px solid rgba(196,178,235,0.11); }
-.card-arrow { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border: 1px solid rgba(240,180,211,0.3); border-radius: 50%; color: var(--accent); }
-.vuln-card:hover .card-arrow { background: rgba(240,180,211,0.12); }
+/* OPEN FILE presentation is defined in the final experience pass below. */
 
 .review-shell { max-width: 900px; margin: 0 auto; padding-top: 42px; }
 .back-link { padding: 7px 10px; border: 1px solid rgba(196,178,235,0.16); border-radius: 8px; background: rgba(255,255,255,0.025); transition: background 180ms var(--ease-out), border-color 180ms var(--ease-out); }
