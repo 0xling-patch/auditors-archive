@@ -305,6 +305,11 @@ export function LanguageSwitcher() {
             </div>
           </div>
           <p className="language-popover-note">翻譯目標只決定本機 Translator API 的語言；主要閱讀語言決定哪一層文字先顯示。</p>
+          <div className="language-popover-actions">
+            <button type="button" className="language-popover-confirm" onClick={() => setOpen(false)}>
+              確認並關閉 <span aria-hidden="true">✓</span>
+            </button>
+          </div>
         </section>
       )}
     </div>
