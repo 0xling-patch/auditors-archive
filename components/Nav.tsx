@@ -8,6 +8,7 @@ const navLinks = [
   { href: "/", en: "INDEX", zh: "索引" },
   { href: "/vulnerabilities", en: "VULNS", zh: "漏洞" },
   { href: "/timeline", en: "TIMELINE", zh: "時間線" },
+  { href: "/updates", en: "UPDATES", zh: "動態" },
   { href: "/about", en: "ABOUT", zh: "關於" },
   { href: "/pgp", en: "PGP", zh: "公鑰" },
   { href: "/private", en: "[PRIVATE]", zh: "[私人]", private: true },
