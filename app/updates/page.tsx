@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   description: "A chronological visual field log from Lingche's archive.",
 };
 
-function displayDate(value: string) {
+function displayDate(value: string | null) {
+  if (!value) return "UNDATED / 未標記時間";
+
   return new Intl.DateTimeFormat("en-CA", {
     year: "numeric",
     month: "2-digit",
@@ -41,19 +43,7 @@ export default function UpdatesPage() {
         </div>
       </header>
 
-      {updates.length === 0 ? (
-        <section className="updates-empty" aria-labelledby="updates-empty-title">
-          <p className="page-kicker">{"// AWAITING TRANSMISSION"}</p>
-          <h2 id="updates-empty-title"><BilingualText en="No updates yet" zh="尚無最新動態" /></h2>
-          <p>
-            <BilingualText
-              en="Upload an image or video to the repository's public/updates folder. Its filename becomes the caption, and the feed will update after deployment."
-              zh="將圖片或影片上傳至儲存庫的 public/updates 資料夾。檔名會成為文案，部署完成後便會出現在此時間流。"
-            />
-          </p>
-          <code>YYYY-MM-DD_HHMM_Caption.ext</code>
-        </section>
-      ) : (
+      {updates.length > 0 && (
         <section className="updates-feed" aria-label="Latest updates / 最新動態">
           {updates.map((update, index) => (
             <article className={`update-entry ${update.type}`} key={update.id}>
@@ -76,7 +66,7 @@ export default function UpdatesPage() {
                 </div>
                 <div className="update-copy">
                   <div className="update-copy-meta">
-                    <time dateTime={update.publishedAt}>{displayDate(update.publishedAt)} UTC</time>
+                    <time dateTime={update.publishedAt ?? undefined}>{displayDate(update.publishedAt)}{update.publishedAt ? " UTC" : ""}</time>
                     <span>{update.type === "video" ? "MOTION LOG" : "IMAGE LOG"}</span>
                   </div>
                   <h2>{update.caption}</h2>

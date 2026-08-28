@@ -15,23 +15,26 @@ export interface UpdateItem {
   src: string;
   type: UpdateMediaType;
   caption: string;
-  publishedAt: string;
+  publishedAt: string | null;
 }
 
-function titleFromFileName(fileName: string) {
+function parseFileName(fileName: string) {
   const extension = path.extname(fileName);
   const rawName = path.basename(fileName, extension);
   const match = rawName.match(UPDATE_FILE_PATTERN);
 
-  if (!match) return null;
+  if (!match) {
+    return {
+      caption: rawName.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim(),
+      publishedAt: null,
+    };
+  }
 
   const [, date, hour = "00", minute = "00", captionSource] = match;
   const caption = decodeURIComponent(captionSource)
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-
-  if (!caption) return null;
 
   return {
     caption,
@@ -52,9 +55,11 @@ export function getSortedUpdates(): UpdateItem[] {
         : VIDEO_EXTENSIONS.has(extension)
           ? "video"
           : null;
-      const parsed = type ? titleFromFileName(entry.name) : null;
 
-      if (!type || !parsed) return [];
+      if (!type) return [];
+
+      const parsed = parseFileName(entry.name);
+      if (!parsed.caption) return [];
 
       return [{
         id: entry.name,
@@ -64,5 +69,10 @@ export function getSortedUpdates(): UpdateItem[] {
         ...parsed,
       } satisfies UpdateItem];
     })
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+    .sort((a, b) => {
+      if (a.publishedAt && b.publishedAt) return b.publishedAt.localeCompare(a.publishedAt);
+      if (a.publishedAt) return -1;
+      if (b.publishedAt) return 1;
+      return b.fileName.localeCompare(a.fileName);
+    });
 }
