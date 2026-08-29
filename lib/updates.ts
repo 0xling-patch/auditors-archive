@@ -42,14 +42,30 @@ function parseFileName(fileName: string) {
   };
 }
 
-export function getSortedUpdates(): UpdateItem[] {
-  if (!fs.existsSync(updatesDirectory)) return [];
+function getMediaFiles(directory: string, relativeDirectory = ""): string[] {
+  if (!fs.existsSync(directory)) return [];
 
-  return fs
-    .readdirSync(updatesDirectory, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .flatMap((entry) => {
-      const extension = path.extname(entry.name).toLowerCase();
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const absolutePath = path.join(directory, entry.name);
+    const relativePath = path.join(relativeDirectory, entry.name);
+
+    if (entry.isDirectory()) return getMediaFiles(absolutePath, relativePath);
+    if (entry.isFile()) return [relativePath];
+    return [];
+  });
+}
+
+function publicMediaPath(relativePath: string) {
+  return `/updates/${relativePath
+    .split(path.sep)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/")}`;
+}
+
+export function getSortedUpdates(): UpdateItem[] {
+  return getMediaFiles(updatesDirectory)
+    .flatMap((relativePath) => {
+      const extension = path.extname(relativePath).toLowerCase();
       const type = IMAGE_EXTENSIONS.has(extension)
         ? "image"
         : VIDEO_EXTENSIONS.has(extension)
@@ -58,13 +74,14 @@ export function getSortedUpdates(): UpdateItem[] {
 
       if (!type) return [];
 
-      const parsed = parseFileName(entry.name);
+      const fileName = path.basename(relativePath);
+      const parsed = parseFileName(fileName);
       if (!parsed.caption) return [];
 
       return [{
-        id: entry.name,
-        fileName: entry.name,
-        src: `/updates/${encodeURIComponent(entry.name)}`,
+        id: relativePath,
+        fileName,
+        src: publicMediaPath(relativePath),
         type,
         ...parsed,
       } satisfies UpdateItem];
@@ -73,6 +90,6 @@ export function getSortedUpdates(): UpdateItem[] {
       if (a.publishedAt && b.publishedAt) return b.publishedAt.localeCompare(a.publishedAt);
       if (a.publishedAt) return -1;
       if (b.publishedAt) return 1;
-      return b.fileName.localeCompare(a.fileName);
+      return b.id.localeCompare(a.id);
     });
 }
