@@ -4,6 +4,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import PageHalo from "@/components/PageHalo";
 import ReadingProgress from "@/components/ReadingProgress";
+import { TimeOfDayTheme } from "@/components/TimeOfDay";
 import { LanguageProvider, TranslationStatusNotice } from "@/components/Bilingual";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="zh-TW" className="dark">
       <body>
         <LanguageProvider>
+          <TimeOfDayTheme />
           <PageHalo />
           <Nav />
           <ReadingProgress />

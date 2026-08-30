@@ -1314,3 +1314,99 @@ main { min-height: calc(100vh - 184px); }
   .updates-empty { margin-top: 28px; padding: 28px 20px; }
 }
 @media (prefers-reduced-motion: reduce) { .update-card { transition: none; } .update-card:hover { transform: none; } }
+
+
+/* Local-time atmosphere: the browser clock controls the palette without sending location data anywhere. */
+:root {
+  --time-bg-start: #120d20;
+  --time-bg-mid: #21112c;
+  --time-bg-end: #05060d;
+  --time-glow: rgba(255, 145, 194, 0.16);
+  --time-cool-glow: rgba(149, 217, 255, 0.08);
+  --time-accent: #f0b4d1;
+}
+
+html[data-daypart="morning"] {
+  --time-bg-start: #191126;
+  --time-bg-mid: #321a36;
+  --time-bg-end: #070811;
+  --time-glow: rgba(255, 169, 190, 0.2);
+  --time-cool-glow: rgba(197, 168, 255, 0.1);
+  --time-accent: #ffc0d8;
+}
+
+html[data-daypart="noon"] {
+  --time-bg-start: #11142a;
+  --time-bg-mid: #241944;
+  --time-bg-end: #070914;
+  --time-glow: rgba(178, 152, 255, 0.2);
+  --time-cool-glow: rgba(117, 213, 255, 0.13);
+  --time-accent: #cbbaff;
+}
+
+html[data-daypart="evening"] {
+  --time-bg-start: #1d0d25;
+  --time-bg-mid: #35122d;
+  --time-bg-end: #08070f;
+  --time-glow: rgba(255, 104, 173, 0.2);
+  --time-cool-glow: rgba(170, 119, 255, 0.11);
+  --time-accent: #ff9fc5;
+}
+
+html[data-daypart="midnight"] {
+  --time-bg-start: #080711;
+  --time-bg-mid: #160d27;
+  --time-bg-end: #020307;
+  --time-glow: rgba(184, 118, 255, 0.16);
+  --time-cool-glow: rgba(117, 205, 255, 0.1);
+  --time-accent: #d1b7ff;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -15%, var(--time-glow), transparent 42rem),
+    radial-gradient(circle at 92% 32%, var(--time-cool-glow), transparent 28rem),
+    linear-gradient(135deg, var(--time-bg-start) 0%, var(--time-bg-mid) 47%, var(--time-bg-end) 100%);
+  transition: background 900ms var(--ease-out);
+}
+
+.time-greeting {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 24px;
+  padding: 8px 12px 8px 10px;
+  border-left: 2px solid var(--time-accent);
+  border-radius: 0 9px 9px 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--time-accent) 11%, transparent), transparent 86%);
+  color: var(--time-accent);
+  font-size: 11px;
+  letter-spacing: 0.35px;
+  transition: border-color 900ms var(--ease-out), background 900ms var(--ease-out), color 900ms var(--ease-out);
+}
+.time-greeting-label {
+  flex: 0 0 auto;
+  color: var(--muted-soft);
+  font-size: 9px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.time-greeting .bilingual-text { gap: 2px; }
+.time-greeting .bilingual-primary { color: var(--text); font-size: 1em; }
+.time-greeting .bilingual-secondary { color: var(--time-accent); font-size: 0.72em; }
+
+@media (max-width: 768px) {
+  .time-greeting {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 19px;
+    padding: 7px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, .time-greeting { transition: none; }
+}

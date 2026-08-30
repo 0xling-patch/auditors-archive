@@ -3,6 +3,7 @@ import { getSortedReviewsData } from "@/lib/posts";
 import LogCard from "@/components/LogCard";
 import TerminalConnect from "@/components/TerminalConnect";
 import { BilingualText } from "@/components/Bilingual";
+import { LocalTimeGreeting } from "@/components/TimeOfDay";
 
 export default function Home() {
   const reviews = getSortedReviewsData();
@@ -20,6 +21,7 @@ export default function Home() {
 
       <header className="hero-header">
         <div className="hero-copy">
+          <LocalTimeGreeting />
           <BilingualText
             en="PERSONAL SECURITY ARCHIVE · 2026"
             zh="個人安全審計檔案庫 · 2026"
